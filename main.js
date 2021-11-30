@@ -3,6 +3,7 @@ const recetas = document.getElementById("recetas");
 const busqueda = document.getElementById("busqueda");
 
 getRandomReceta();
+recorridoLS();
 
 busqueda.addEventListener('click', async ()=>{
     const input = document.getElementById("input");
@@ -45,7 +46,7 @@ async function getRecetabyId(idreceta){
 }
 
 //Inserta en el Dom las tarjetas de las recetas
-async function addRecetas (recetain){
+function addRecetas (recetain){
     let receta = document.createElement('div');
     receta.classList.add('card-recetas');    
     receta.innerHTML = `
@@ -66,6 +67,8 @@ async function addRecetas (recetain){
             recorridoLS();
         }else{                        
             fav_btn.classList.remove('active');
+            borrarLS(recetain.idMeal);
+            recorridoLS();
         }        
     })
     recetas.appendChild(receta);
@@ -73,17 +76,19 @@ async function addRecetas (recetain){
 
 //Consigue las recetas con los id del LocalStorage
 async function recorridoLS (){
+    recetasFav.innerHTML = "";
     let LS = getLS();
-    LS.forEach(element =>  {
-        let receta = getRecetabyId(LS);
-        addFav(receta);
-    });
-    console.log(LS);
+
+        for (let i = 0; i < LS.length; i++) {
+            let receta = await getRecetabyId(LS[i])
+            addFav(receta)
+            
+        };
+
 }
 
 //Insertar en el Dom los Favoritos
-async function addFav (recetain){ 
-    console.log(recetain);
+function addFav (recetain){     
     let recetaFav = document.createElement('li');
     recetaFav.classList.add('li-fav');
     recetaFav.innerHTML = `
@@ -91,6 +96,13 @@ async function addFav (recetain){
     <br><span>${recetain.strMeal}</span>
     <botton class="clos"><i class="far fa-times-circle"></i></botton>
     `;
+
+    const close_btn = recetaFav.querySelector(".clos");
+
+    close_btn.addEventListener("click", ()=>{
+        borrarLS(recetain.idMeal)
+        recorridoLS();
+    })
     recetasFav.appendChild(recetaFav);
 }
 
@@ -102,6 +114,11 @@ function ActualizaLS (recetaid){
     const todosJ = JSON.stringify(idrecetas)
     localStorage.setItem('idrecetas', todosJ)
 
+}
+
+function borrarLS (recetaid){
+    let LS = getLS();
+    localStorage.setItem("idrecetas", JSON.stringify(LS.filter((id) => id !== recetaid)));
 }
 
 //Obtiene el contenido del LocalStorage
