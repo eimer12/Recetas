@@ -17,8 +17,7 @@ async function getRandomReceta(){
         let respData = await resp.json();
         let randomReceta = respData.meals[0];   
          
-        addRecetas(randomReceta);
-        addFav(randomReceta);
+        addRecetas(randomReceta);        
     }
 };
 
@@ -37,8 +36,16 @@ async function getBusquedaReceta(consulta){
     }
 }
 
+//Optiene recetas por Id
+async function getRecetabyId(idreceta){
+    let resp = await fetch("https://www.themealdb.com/api/json/v1/1/lookup.php?i="+idreceta);
+    let respData = await resp.json();
+    let receta = respData.meals[0];
+    return receta;
+}
+
 //Inserta en el Dom las tarjetas de las recetas
-function addRecetas (recetain){
+async function addRecetas (recetain){
     let receta = document.createElement('div');
     receta.classList.add('card-recetas');    
     receta.innerHTML = `
@@ -55,7 +62,8 @@ function addRecetas (recetain){
     fav_btn.addEventListener("click", ()=>{
         if (!fav_btn.classList.contains('active')) {            
             fav_btn.classList.add('active');            
-            addLS(recetain.idMeal);
+            ActualizaLS(recetain.idMeal);   
+            recorridoLS();
         }else{                        
             fav_btn.classList.remove('active');
         }        
@@ -63,8 +71,19 @@ function addRecetas (recetain){
     recetas.appendChild(receta);
 };
 
+//Consigue las recetas con los id del LocalStorage
+async function recorridoLS (){
+    let LS = getLS();
+    LS.forEach(element =>  {
+        let receta = getRecetabyId(LS);
+        addFav(receta);
+    });
+    console.log(LS);
+}
+
 //Insertar en el Dom los Favoritos
-function addFav (recetain){    
+async function addFav (recetain){ 
+    console.log(recetain);
     let recetaFav = document.createElement('li');
     recetaFav.classList.add('li-fav');
     recetaFav.innerHTML = `
@@ -74,18 +93,19 @@ function addFav (recetain){
     `;
     recetasFav.appendChild(recetaFav);
 }
-const todos = [];
-function addLS (recetaid){
 
-    const todos = JSON.parse(localStorage.getItem('idrecetas')) || [];
-    todos.push(recetaid);
-    const todosJ = JSON.stringify(todos)
+//Guarda y Actualiza los id de Recetas en el LocalStorage
+function ActualizaLS (recetaid){
+
+    const idrecetas = getLS();
+    idrecetas.push(recetaid);
+    const todosJ = JSON.stringify(idrecetas)
     localStorage.setItem('idrecetas', todosJ)
-    console.log(todos);
 
 }
 
+//Obtiene el contenido del LocalStorage
 function getLS (){
-    const idrecetas = JSON.parse(localStorage.getItem('idrecetas')) || [];
+    let idrecetas = JSON.parse(localStorage.getItem('idrecetas')) || [];
     return idrecetas;
 }
