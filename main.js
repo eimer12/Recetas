@@ -13,7 +13,7 @@ busqueda.addEventListener('click', async ()=>{
 
 //Optiene e imprime receta random
 async function getRandomReceta(){
-    for (let i = 1; i < 7; i++) {
+    for (let i = 1; i < 5; i++) {
         let resp = await fetch("https://www.themealdb.com/api/json/v1/1/random.php");
         let respData = await resp.json();
         let randomReceta = respData.meals[0];   
@@ -87,7 +87,7 @@ async function recorridoLS (){
 
 }
 
-//Insertar en el Dom los Favoritos
+//Insertar en el Dom los Favoritos que se encuentran en el LocalStorage
 function addFav (recetain){     
     let recetaFav = document.createElement('li');
     recetaFav.classList.add('li-fav');
